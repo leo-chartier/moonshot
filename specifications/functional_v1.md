@@ -13,7 +13,12 @@
 - [Use cases](#use-cases)
   - [Walkthrough creation](#walkthrough-creation)
   - [Player stuck on choice](#player-stuck-on-choice)
+- [Risk and assumptions](#risk-and-assumptions)
+  - [Risk analysis](#risk-analysis)
+  - [Assumptions](#assumptions)
 - [Requirements](#requirements)
+  - [Functional requirements](#functional-requirements)
+  - [Non-functional requirements](#non-functional-requirements)
 - [Glossary](#glossary)
 
 ## Context
@@ -54,7 +59,8 @@ The initial features are as follows:
 - A minimalistic interface on startup containing
   - a button to launch the game as usual,
   - a button to start the search for the optimal path,
-  - a dropdown menu to select the target destination.
+  - a button showing a list of all the possible targets
+  - once the target is selected, the previous menu is shown
 
 In this context, the optimal path is the one that leads to the good ending and, if there are multiple paths possible, the shortest one.
 
@@ -132,11 +138,87 @@ Flow of events:
 
 If the desired ending is not reachable anymore, the program will instead let the player know where they went off track.
 
+## Risk and assumptions
+
+### Risk analysis
+
+1. The program takes too long or uses too much memory.
+  - Consequence: The program will not finish properly or even crash, infuriating the user.
+  - Threat level: High
+  - Probability: Medium
+  - Mitigation: Regularly test the software on multiple examples with monitoring.
+
+2. The program fails to read the content of the game correctly.
+  - Consequence: The generated response to the user might be incorrect since the data is incomplete.
+  - Threat level: Medium
+  - Probability: Low (The API is quite straightforward in that regard.)
+  - Mitigation: Transfer the responsibility to the underlying API and watch for updates.
+
+3. We fall in scope creep.
+  - Consequence: The project becomes too hard to manage and we might miss the deadlines.
+  - Threat level: Medium
+  - Probability: Medium
+  - Mitigation: Plan a list of potential features and stick to those as much as possible.
+
+4. The program is not ready for the exam.
+  - Consequence: If it is allowed, the exam will have to be re-taken the next year.
+  - Threat level: High
+  - Probability: High
+  - Mitigation: Prioritize tasks and reduce the scope if necessary.
+
+5. Our competitor gets ahead of us / a new competitor arises.
+  - Consequence: Users will start using their program if it is more appealing to them.
+  - Threat level: Medium
+  - Probability: Low
+  - Mitigation: Join their notification network and stay aware of planned changes
+
+### Assumptions
+
+- The user can identify a section of the game based on its label (`chapter_6`, `ending_left_door`, ...).
+  - The name given to those by the developer is completely arbitrary and might be cryptic.
+- The API will not change drastically.
+- The project will not rely on any paid third party (software, management tool, or contractor).
+
 ## Requirements
+
+### Functional requirements
+
+The program must prevent the game from starting normally
+
+The user must be greeted by an interface with a main menu containing the following actions:
+- "Optimal path" - Find the optimal path to a specific target,
+- "Walkthrough" - Create a text file with the steps to reach a specific target,
+  - The file must be saved in the root directory of the game as `walkthrough.txt`.
+- "Hint from save" - Tell the user the next choice to proceed to reach a specific target from a save file,
+  - If the game allows for multiple save files, the user must be able to select which one from a button. If there is no save yet, the option should be disabled.
+- "Continue to game" - Exit the program and launch the game as it normally would,
+- "Exit" - Exit the program without launching the game.
+
+Except for the last two options, the user must be directed to another page with:
+- A drop-down menu with all the possible targets,
+- Features specific to each action as specified above,
+- A button to start the computation,
+  - The button must be disabled until all the fields have been filled.
+- A button to cancel the computation,
+  - The button must only be enabled while the computation is running.
+  - All the other buttons must be disabled while the computation is running.
+- A button to go back to the main menu.
+
+![Main interface](./images/main_interface.png)
+
+![Walkthrough interface](./images/walkthrough_interface.png)
+
+![Interface while running](./images/running_interface.png)
+
+### Non-functional requirements
+
+- The interface must match the game's style.
+- The computation of the path must take at most 5 minutes.
 
 ## Glossary
 
-Visual Novel: See [What are Visual Novels?](#what-are-visual-novels).
+API (Application Programming Interface): A way created by a program for others to communicate with it and vice-versa.
 GitHub: Online platform to store and share code inside of "repositories" with version control and bug tracking, among other features.
 Source code: The original, human-readable code for software before it has been transformed to be usable by a computer.
+Visual Novel: See [What are Visual Novels?](#what-are-visual-novels).
 Walkthrough: For Visual Novels, a guide that lists the different steps to take to reach a desired ending.
