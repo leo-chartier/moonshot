@@ -14,8 +14,12 @@ The code for this project is available in its separate repository [here](https:/
 
 ## Change of heart
 
-This project was not the one I initially started with. I was at first supposed to create software to analyze the different instruments composing a piece of music. For reasons described in the document, this project was discarded.
+This project was not the one I initially started with. I was at first supposed to create software to analyze the different instruments composing a piece of music. For reasons described in the project report, this project was discarded.
 
-## Table of Content
+The files can be found [here](https://github.com/leo-chartier/Moonshot-old).
 
-Links to the different files will be included here once they are created.
+## Documents
+
+- [Functional specifications](./functional_v1.md)
+- [Project report](./project_report.md)
+- [Presentation slides](https://docs.google.com/presentation/d/1e7b8B-wZhJfHMkfA4pPUMoJ2D7b2-wNFsDmznAxkWw0)
