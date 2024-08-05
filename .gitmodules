@@ -1,0 +1,6 @@
+[submodule "code"]
+	path = code
+	url = https://github.com/leo-chartier/renpath
+[submodule "old_moonshot"]
+	path = old_moonshot
+	url = https://github.com/leo-chartier/Moonshot-old
