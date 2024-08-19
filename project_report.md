@@ -21,18 +21,23 @@
 - [Specifications](#specifications)
   - [Current requirements](#current-requirements)
   - [Future requirements](#future-requirements)
-  - [Technical requirements](#technical-requirements)
   - [Development guidelines](#development-guidelines)
   - [Testing and success criteria](#testing-and-success-criteria)
   - [Algorithms](#algorithms)
     - [Extraction/Conversion](#extractionconversion)
     - [Simplification](#simplification)
-    - [Graph generation](#graph-generation)
+    - [Graph visualization](#graph-visualization)
     - [Analysis](#analysis)
+- [Choices](#choices)
+  - [Architectural choices](#architectural-choices)
+  - [Algorithms](#algorithms-1)
+    - [Generation - BFS](#generation---bfs)
+    - [Simplification](#simplification-1)
+    - [Analysis - Graph traversal](#analysis---graph-traversal)
 
 ## Introduction
 
-As part of the curriculum of ALGOSUP and its degree, the students must work on a personal software creation project. This official degree is split into two required levels: a level 6 and a level 7 (obtainable one year after the previous one).
+As part of the ALGOSUP curriculum and its degree, the students must work on a personal software creation project. This official degree is split into two required levels: a level 6 and a level 7 (obtainable one year after the previous one).
 
 ### Visual Novel definition
 
@@ -80,14 +85,8 @@ Here is what a graph could look like:
 
 - The tool should allow the user to select a destination label from the game.
 - The tool should be able to find the path and its requirements to reach this target.
-- The tool should be able to write a file with the choices required to reach this target.
+- The tool should be able to write a file using the choices required to reach this target.
 - The tool should allow the user to select a save file to change the starting point.
-
-### Technical requirements
-
-To ensure full compatibility between our tool and any game, the code will be run directly by the game engine as if it were part of the game.
-For this reason, the code should be written either in Python or in the Renpy scripting language for the interfaces.
-Despite not being planned, another programming language could be used to speed up the analyses.
 
 ### Development guidelines
 
@@ -152,16 +151,14 @@ One of those nodes also has a `next` attribute which is itself a node. It repres
 A `Node` wrapper will be created to hold more data, including:
 - `origin`: The underlying Renpy node.
 - `parents` and `children`: Two lists of `Edges` that connect to this node.
-- `screens`: A list of screens visible when the game is executing this statement.
+- `screens`: A list of screens visible when the game processes this statement.
 - `callers`: A list of previous `Call`s to know where to return to later on.
 
 The main reason for the wrapper's existence is that the Renpy nodes do not provide a direct way to their predecessors which will be important as described further in this document.
 
 A `Graph` and `Edge` classes will also be written for completeness and to make things easier to use.
 
-The conversion of the data into the wrappers will take place using a Depth First Search (DFS) algorithm. The start of the graph is always the label named "start". The search stops when all the nodes have an empty `next` value or when there is a `Return` with an empty call stack.
-
-The reason we must use DFS is that we cannot know in advance which nodes exist other than the starting one.
+The conversion of the data into the wrappers will take place using a Breadth First Search (BFS) algorithm. The start of the graph is always the label named "start". The search stops when all the nodes have an empty `next` value or when there is a `Return` with an empty call stack.
 
 #### Simplification
 
@@ -196,20 +193,20 @@ For this to work without affecting the flow of the graph, their parents and chil
 1. Merge the children's edges that point to the same node. If there are conditions, they must be combined with an `or` operator.
 2. If the product of the number of parent and child edges is less than 25, you may remove the node. Otherwise, leave it as it would make further algorithms too slow for what it's worth.
 
-The procedure to remove a node is not straightforward as there could be some data loss.
+Removing a node is not straightforward as there could be some data loss.
 1. Unregister the node from the graph along with its parent and children edges. Keep a copy of the old edges.
 2. If it is a `Return` node, remove any duplicate children edges (this minimizes the possibilities of call stacks).
 3. For each pair of parent and child edges, create a new edge with the same parent and child node. The conditions will be combined with an `and` operator.
    - If one of the two conditions is `True` or `False`, simplify the resulting condition.
 
-#### Graph generation
+#### Graph visualization
 
-The graph generation is probably the simplest requirement here.
+Graph visualization is probably the simplest requirement here.
 
 As the actual display of the graph is very complex and out of scope, we will use a third-party program.
 The selected one is [Graphviz](https://graphviz.org/) for its simplicity. Due to some performance issues with more complex graphs rising from the improvements on Renpath, other tools such as [Mermaid](https://mermaid.js.org/), [NetworkX](https://networkx.org/) or [Gephi](https://gephi.org/) could be viable as replacements.
 
-While there exists a Python library for Graphviz, importing external assets in Renpy is extremely difficult and has been rejected. Instead, a raw text file will be created in the DOT format and it will be up to the user to run the software on that file.
+While a Python library exists for Graphviz, importing external assets in Renpy is extremely difficult and has been rejected. Instead, a raw text file will be created in the DOT format and it will be up to the user to run the software on that file.
 
 Here is what the file for the earlier graph should look like:
 ```grapviz
@@ -258,4 +255,69 @@ The label for the nodes is as follows:\
 
 #### Analysis
 
-<!-- TODO -->
+Once the graph is extracted and preferably simplified, finding the desired path can begin.
+
+The analysis of a path will be done with two types of "heads" traversing the graph using Breadth First Seach once again. One will go backward (also called upward) from the end node and the second from the starting node forward (also called downward).
+
+Both types of heads will traverse the graph, updating their variables until they reach their target. When a node reaches a fork in the road, it will duplicate itself. When it encounters a condition, it will add a restriction on its variables respectively. If the condition is impossible, that path cannot be taken and the head is deleted. The same goes if the head is in a dead end that is not their target.
+
+When a head is on a node that has already been visited by another head, delete the latter one. Use the old state of the deleted head to update the restrictions and variables of the current head.
+
+> [!NOTE]
+> If both heads are the same, we are running in a loop. The actions to take in such a case have yet to be defined.
+
+The first head to traverse the graph will be the backward one. Once the traversal is done, all the nodes that were not visited will be pruned (deleted). Then the forward one will go, also with pruning. The process will repeat until no more pruning happens from either head.
+
+At this point, the graph can be in one of two states:
+- The graph is linear. We are done and can continue onwards.
+- The graph is not linear and there are still multiple paths.
+
+In the second case, all the remaining choices lead to the same conclusion. We use a Wave Function Collapse-like algorithm where we "observe" by removing one of the choices available to the player and "collapse" by repeating the sequence with both heads.
+
+Finally, the final path is walked along while extracting the choices that must be made. These choices are then written in a `path.txt` file at the root of the game. Each entry should be on a separate line.
+
+## Choices
+
+### Architectural choices
+
+For this tool, the two main languages will be Python and the Renpy scripting language.
+
+Two reasons justify this choice:
+
+Firstly, we must access the game's content in one way or another. This is done by parsing the script files. Thankfully, this is already done by the game engine in order to run the game. For this reason, utilizing the game engine will save us time and ensure no mistake exists in that process.
+
+Secondly, this choice focuses the tool on a single game engine. This choice alone reduces the scope of the project greatly. The main reason this is important is that games created with generic game engines such as Unity or Godot do not have a specific format. It is up to the developer to create their own tools. It would be impossible for me to create something that matches each without requiring the developer to do additional work.
+
+While those two languages work fine, both being interpreted languages makes them quite slow. This can be an issue when running heavy algorithms as this tool on long and winding games. Once the tool is fully written, another more powerful programming language could be used to improve performance.
+
+Adding a new programming language would require making an external program. An interface would then be necessary between the extraction step done on the game engine and the more demanding algorithms in the new language. For debugging purposes, a serializer has already been implemented for the `Graph` class and could be used in this process.
+
+### Algorithms
+
+#### Generation - BFS
+
+The first algorithm used is BFS for the generation. This algorithm is used over Depth First Search (DFS) because of call stacks.
+
+When a `Call` statement is found, the game has to keep track of this location for when a `Return` is encountered. This location is saved on the call stack. Because a node can be part of multiple paths, it can also be part of several call stacks. When a connection to an existing node is made, the new call stacks are merged with the existing ones and propagated to the rest of the graph.
+
+With DFS, the propagation would last until the very last node of the graph. This operation is very time-consuming. By using BFS, path merging is more likely to take place early with very little propagation.
+
+#### Simplification
+
+Despite its `O(n²)` time complexity, this step is necessary for the other algorithms to work properly.
+
+While it increased on average by **20.26%** the time taken for the generation, the size of the graph reduced by **83.78%**.
+
+The actual impact on the later features has not been measured as they have not been implemented yet. I believe it is safe to say this improvement was more than necessary, especially if the game is lengthy and convoluted.
+
+#### Analysis - Graph traversal
+
+The analysis takes from two domains: pathfinding and the satisfiability problem.
+
+The satisfiability problem must often be solved by using brute force. This is a lengthy procedure and is not fit for the complex expressions possibly encountered.
+
+As mentioned earlier, this issue is tackled by pruning the graph of the nodes and edges that cannot be part of the path. In other words, if a condition has no possible solution, we know that the descending nodes are unattainable and can remove them. We traverse the graph to know which nodes must not be removed.
+
+This is repeated multiple times in both directions to ensure the effects from removing a node are properly propagated.
+
+We also use the Breadth First Search algorithm here for the same reasons as the generation step. When two heads collide, we want it to happen early to avoid needless propagation.
