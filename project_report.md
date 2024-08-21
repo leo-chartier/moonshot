@@ -22,7 +22,7 @@
   - [Current requirements](#current-requirements)
   - [Future requirements](#future-requirements)
   - [Development guidelines](#development-guidelines)
-  - [Testing and success criteria](#testing-and-success-criteria)
+  - [Success criteria](#success-criteria)
   - [Algorithms](#algorithms)
     - [Extraction/Conversion](#extractionconversion)
     - [Simplification](#simplification)
@@ -34,6 +34,11 @@
     - [Generation - BFS](#generation---bfs)
     - [Simplification](#simplification-1)
     - [Analysis - Graph traversal](#analysis---graph-traversal)
+- [Testing](#testing)
+- [Management](#management)
+- [Future work](#future-work)
+- [Conclusion](#conclusion)
+- [Glossary](#glossary)
 
 ## Introduction
 
@@ -97,10 +102,7 @@ It is recommended to develop using Visual Studio Code along with the following e
 
 Having Python installed is NOT required.
 
-### Testing and success criteria
-
-Since each game is different, no specific test environment has been set up. An example is provided [here](https://github.com/leo-chartier/renpath/tree/main/tests).
-Each modification should be tested on multiple games to ensure full compatibility. You can find some for free on [itch.io](https://itch.io/games/free/tag-renpy).
+### Success criteria
 
 For the graph creation, the success criteria are:
 - The graph must correctly show all the labels and choices available.
@@ -114,6 +116,8 @@ For the walkthrough creation, the success criteria are:
 - After selecting those choices in the game, the variables must contain the same content as outputted by the tool.
 
 Automated testing will be written for this step as the choices always have the same names and are in the same order.
+
+A feature is considered complete once it fully works for the example test. See the [Testing](#testing) section for more information.
 
 ### Algorithms
 
@@ -284,11 +288,11 @@ For this tool, the two main languages will be Python and the Renpy scripting lan
 
 Two reasons justify this choice:
 
-Firstly, we must access the game's content in one way or another. This is done by parsing the script files. Thankfully, this is already done by the game engine in order to run the game. For this reason, utilizing the game engine will save us time and ensure no mistake exists in that process.
+Firstly, we must access the game's content in one way or another. This is done by parsing the script files. Thankfully, the game engine already does it to run the game. For this reason, utilizing the game engine will save us time and ensure no mistake exists in that process.
 
 Secondly, this choice focuses the tool on a single game engine. This choice alone reduces the scope of the project greatly. The main reason this is important is that games created with generic game engines such as Unity or Godot do not have a specific format. It is up to the developer to create their own tools. It would be impossible for me to create something that matches each without requiring the developer to do additional work.
 
-While those two languages work fine, both being interpreted languages makes them quite slow. This can be an issue when running heavy algorithms as this tool on long and winding games. Once the tool is fully written, another more powerful programming language could be used to improve performance.
+While those two languages work fine, both being interpreted languages makes them quite slow. This can be an issue when running heavy algorithms such as this tool with long and winding games. Once the tool is fully written, another more powerful programming language could be used to improve performance.
 
 Adding a new programming language would require making an external program. An interface would then be necessary between the extraction step done on the game engine and the more demanding algorithms in the new language. For debugging purposes, a serializer has already been implemented for the `Graph` class and could be used in this process.
 
@@ -321,3 +325,46 @@ As mentioned earlier, this issue is tackled by pruning the graph of the nodes an
 This is repeated multiple times in both directions to ensure the effects from removing a node are properly propagated.
 
 We also use the Breadth First Search algorithm here for the same reasons as the generation step. When two heads collide, we want it to happen early to avoid needless propagation.
+
+## Testing
+
+To ensure the coverage of most of the existing games, this tool has been regularly tested on multiple ones. Many are freely available on [itch.io](https://itch.io/games/free/tag-renpy).
+
+Since each game is different, no specific test environment has been set up. An example is provided [here](https://github.com/leo-chartier/renpath/tree/main/tests) for [Doki Doki Literature Club!](https://en.wikipedia.org/wiki/Doki_Doki_Literature_Club!). \
+This game has been selected to serve as an example due to its popularity with two million downloads in its first four months of release, and the fact that anyone can get it for free.
+
+This same game has also been selected as the "ultimate test". The game makes use of very powerful tools, some of which are not meant for direct use in a Visual Novel. This uniqueness proves that if the tool successfully handles it, it is also capable of working on any other game.
+
+As far as development is concerned, the main testing game is [Everlasting Summer](https://store.steampowered.com/app/331470/Everlasting_Summer/). It contains a lot of possible paths to challenge the tool. It also turned out quite useful when working on `Screen`s thanks to its movement mechanic that uses a custom map.
+
+## Management
+
+From my previous attempt at this project, I learned that working on this project while at school was not an easy task.
+
+With all the classes, homework, and projects that must be continued at home, and keeping some time for myself, finding a good time slot was almost impossible. Every time I tried to make a schedule and plan, there always was something more important coming up or I would not muster the required motivation.
+
+Planning not being my forte, I took the opportunity to test a less systematical approach. I decided to go at my own pace and work when I could with no predefined schedule. The only metrics I used were my targeted goal and my progress. This progress was tracked using a TODO list in a local file on my computer.
+
+I decided not to start by writing documents either. I have seen in my scholarship the benefits and downsides of making specifications. I wanted to challenge myself and see how well I would perform without those. Now that the first version is complete, I will be able to make those specifications and compare them with my current status.
+
+In the end, due to a lack of time, I had to lower the scope of the first version. I only had enough time to start working on the analysis step.
+
+## Future work
+
+As mentioned above, the first step is to write the specifications from the beginning. The functional specifications are already complete and I have started working on the technical specifications.
+
+The reason I opted to work on those documents right now is that the current state of the code left for desire. Constructing a more stable structure will allow me to rewrite the code in a better way. This refactoring step will be important for later as it will be easier to improve upon and maintain the code.
+
+While reworking the code, I will also collect feedback. I am aware I have an indirect competitor. Gathering insights into what users think of my product at this stage is crucial for future features.
+
+Finally, once all this is done, I can continue working on implementing the analysis system.
+
+Potential changes for later versions could include:
+- Switch to a more performant programming language
+- Improvement of the algorithms' performance
+- Ability to use a save file as a starting point
+- In-depth code analysis
+
+## Conclusion
+
+## Glossary
