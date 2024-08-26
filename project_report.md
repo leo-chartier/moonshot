@@ -8,7 +8,7 @@
 
 ## Abstract
 
-<!-- TODO -->
+The video game industry generates hundreds of billions of dollars anually, yet one of its genres remains a niche: Visual Novels. While many tools help the development of this type of game, no software exists to verify their quality, leading to mistakes making their way in published versions. Such a tool could help the existing developers and help beginners feel safer about trying to make their games. My project aims to fill this need and improve the Ren'Py community with the creation of an analytical software for their code. The first milestone is to find the best route that a player can take automatically. The tool uses pathfinding algorithms, logical analysis, and graph-pruning techniques tailored specifically for this task. Though community feedback has not been gathered yet, I hope that this project will encourage the developers to grow further and improve the content of their stories.
 
 ## Table of Contents
 
@@ -44,11 +44,14 @@
 
 As part of the ALGOSUP curriculum and its degree, the students must work on a personal software creation project. This official degree is split into two required levels: a level 6 and a level 7 (obtainable one year after the previous one).
 
+Before going any further into the matter, I would like to state the following: \
+This project is not my first. My previous end-of-degree project did not work out and I ended up rerouting myself on this second one. This document will only describe the new project.
+
 ### Visual Novel definition
 
-First of all, I need to define a concept that is at the heart of this project: Visual Novels.
+First of all, I need to define a concept that is at the heart of this project: visual novels.
 
-Visual Novels (VN for short) are a type of video game that could be described as "books for computers." Most of the time, they are accompanied by images, music, and sounds, as well as videos and interactive buttons.
+Visual novels (VN for short) are a type of video game that could be described as "books for computers." Most of the time, they are accompanied by images, music, and sounds, as well as videos and interactive buttons.
 
 What differentiates them the most from our usual books is their interactivity. The player is provided with choices that change the story, offering a variety of scenarios.
 
@@ -58,7 +61,7 @@ The idea for this project came to me during my free time.
 
 As I was playing a Visual Novel game, I was unexpectedly brought back to an earlier point in the game. I investigated the reason by looking at the code and found the issue. The developer used a `jump` (`goto` in some languages) instead of a `call`.
 
-This kind of mistake can easily be made in this field of video games as creators of Visual Novels are more knowledgeable about arts than programming.
+This kind of mistake can easily be made in this field of video games as creators of visual novels are more knowledgeable about arts than programming.
 
 This led me to the idea for this project: Creating a tool that would assist developers and players by analyzing the different paths and more.
 
@@ -68,13 +71,15 @@ The end product of this project is a tool targeting both creators and users of V
 
 For this first version, the tool is limited to reading the content of a game and creating a visual representation of all the choices that can be made and the paths that link them.
 
+The only targeted engine is the most popular one in the field, [Ren'Py](https://www.renpy.org/). The name for the tool comes from it.
+
 Some additional functionalities are already in place to prepare for the next step of this project, which could not have been finished in time for this first version. The original target for this version was to also have a basic analysis of the recovered data by finding the path to go to a specific point in the game.
 
 ## Specifications
 
 ### Current requirements
 
-- The tool should be compatible with any version of Renpy.
+- The tool should be compatible with any version of Ren'Py.
   - *Many modern games still use old versions of the game engine.*
 - The tool must hook itself to the game without modifying the original code.
 - The tool must be easily removed from the game.
@@ -98,7 +103,7 @@ Here is what a graph could look like:
 It is recommended to develop using Visual Studio Code along with the following extensions:
 - [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
 - [SonalLint](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarlint-vscode)
-- [Renpy language](https://marketplace.visualstudio.com/items?itemName=renpy.language-renpy)
+- [Ren'Py language](https://marketplace.visualstudio.com/items?itemName=renpy.language-renpy)
 
 Having Python installed is NOT required.
 
@@ -143,7 +148,7 @@ Here is a list of those that are common with other languages and some of their a
     - The block is a list of nodes from the statements to be run.
     - The condition defines whether this block should be run or not.
 
-Some others are specific to the Renpy scripting language:
+Some others are specific to the Ren'Py scripting language:
 - `Menu`: Gives the player a choice to make and diverts the execution of the script accordingly.
 - `Python`: Executes some arbitrary code in the Python language.
   - `code`: The code to be executed.
@@ -153,12 +158,12 @@ Some others are specific to the Renpy scripting language:
 One of those nodes also has a `next` attribute which is itself a node. It represents the statement following the current one and is used to progress the story.
 
 A `Node` wrapper will be created to hold more data, including:
-- `origin`: The underlying Renpy node.
+- `origin`: The underlying Ren'Py node.
 - `parents` and `children`: Two lists of `Edges` that connect to this node.
 - `screens`: A list of screens visible when the game processes this statement.
 - `callers`: A list of previous `Call`s to know where to return to later on.
 
-The main reason for the wrapper's existence is that the Renpy nodes do not provide a direct way to their predecessors which will be important as described further in this document.
+The main reason for the wrapper's existence is that the Ren'Py nodes do not provide a direct way to their predecessors which will be important as described further in this document.
 
 A `Graph` and `Edge` classes will also be written for completeness and to make things easier to use.
 
@@ -210,7 +215,7 @@ Graph visualization is probably the simplest requirement here.
 As the actual display of the graph is very complex and out of scope, we will use a third-party program.
 The selected one is [Graphviz](https://graphviz.org/) for its simplicity. Due to some performance issues with more complex graphs rising from the improvements on Renpath, other tools such as [Mermaid](https://mermaid.js.org/), [NetworkX](https://networkx.org/) or [Gephi](https://gephi.org/) could be viable as replacements.
 
-While a Python library exists for Graphviz, importing external assets in Renpy is extremely difficult and has been rejected. Instead, a raw text file will be created in the DOT format and it will be up to the user to run the software on that file.
+While a Python library exists for Graphviz, importing external assets in Ren'Py is extremely difficult and has been rejected. Instead, a raw text file will be created in the DOT format and it will be up to the user to run the software on that file.
 
 Here is what the file for the earlier graph should look like:
 ```grapviz
@@ -284,7 +289,7 @@ Finally, the final path is walked along while extracting the choices that must b
 
 ### Architectural choices
 
-For this tool, the two main languages will be Python and the Renpy scripting language.
+For this tool, the two main languages will be Python and the Ren'Py scripting language.
 
 Two reasons justify this choice:
 
@@ -339,7 +344,7 @@ As far as development is concerned, the main testing game is [Everlasting Summer
 
 ## Management
 
-From my previous attempt at this project, I learned that working on this project while at school was not an easy task.
+From my attempt at my previous end-of-degree project, I learned that working on this project while at school was not an easy task.
 
 With all the classes, homework, and projects that must be continued at home, and keeping some time for myself, finding a good time slot was almost impossible. Every time I tried to make a schedule and plan, there always was something more important coming up or I would not muster the required motivation.
 
@@ -367,4 +372,61 @@ Potential changes for later versions could include:
 
 ## Conclusion
 
+This project has been both stimulating and instructive, and I plan on developing it as far as I can.
+
+I learned valuable insights from it. It not only allowed me to try out a new form of management but also taught me how to handle unexpected issues rising on a familiar topic. I also found the process of coming up with such complex algorithms very satisfying, especially when they did not work as I had planned.
+
+Overall, I am optimistic that this tool will help the Ren'Py community improve their projects by simplifying the verification process. I hope it will also attract new people to join this underrated sector of such a dynamic industry.
+
 ## Glossary
+
+**Breadth First Search (BFS)**:
+A search algorithm for graphs that explores paths simultaneously, taking one step at a time for each one. The priority is finding the best solution.
+
+**Call stack**:
+A data structure that records the different function calls made in a program. It allows the program to later return to the previous location and continue from there.
+
+**Depth First Search (DFS)**:
+A search algorithm for graphs that explores paths one at a time. Once it reaches the end of a branch, it goes back and tries the next one available. The priority is finding a solution quickly.
+
+**DOT language**:
+A syntax used by the Graphviz program. It describes the structure and content of a graph.
+
+**Graph / Node / Edge**:
+Three related data types. A graph contains nodes (a.k.a. vertices) linked by edges. In our case, the graph is directed. It means each edge has a given direction, dictating the flow of the graph.
+
+**Head**:
+Friendly name given to the tracking structure in the algorithm. It refers to the Git software that keeps track of the current position with the `HEAD` variable.
+
+**Interpreter**:
+A program that reads instructions from a file and executes them. Contrary to how most programs work, these instructions do not require to be compiled (translated for the computer) beforehand. This leads to a slower execution of those instructions.
+
+**Jump / Call / Return**:
+Three types of branching instructions. Instructions are usually in order but sometimes require to move around elsewhere in the program. The `jump` instruction moves the location where the code is executed directly. `call`s do the same but keep track of where they were. The operation is reversed with `return` statements which move back to the location of the `call`.
+
+**Label**:
+Specific instruction which identifies a block of code with a name. This name can be used with branching instructions for easy reference.
+
+**Pathfinding**:
+The process of determining the shortest or most efficient route between two positions.
+
+**Pruning**:
+A technique that removes portions of a graph to reduce its size and thus its complexity.
+
+**Ren'Py**:
+Name of a software game engine that allows the easy creation of visual novels. It was developed in the Python programming language.
+
+**Satisfiability problem (SAT)**:
+The Boolean satisfiability problem is the problem of determining whether a solution exists to a specific equation. It is NP-complete, meaning the solutions cannot be found easily.
+
+**Serialization**:
+Process of saving data stored in the program's memory in a file. Loading the data back is called "deserialization". A file format often used is the JavaScript Object Notation (JSON).
+
+**Visual Novel (VN)**:
+A software providing users with some fiction as digital content. They consist of texts, (animated) images, and user interactivity. The interactive part leads to multiple routes, each with its ending.
+
+**Walkthrough**:
+A guide containing hints for video game players to improve themselves and advance through the game. For visual novels, they list the choices necessary to reach the intended ending.
+
+**Wave Function Collapse (WFC)**:
+A constraint-solving algorithm generally used in procedural generation (automatic data creation). The term is coined on the quantum mechanic concept that shares similarities with how the algorithm works.
