@@ -21,5 +21,11 @@ The files can be found [here](https://github.com/leo-chartier/Moonshot-old).
 ## Documents
 
 - [Functional specifications](./functional_v1.md)
-- [Project report](./project_report.md)
-- [Presentation slides](https://docs.google.com/presentation/d/1e7b8B-wZhJfHMkfA4pPUMoJ2D7b2-wNFsDmznAxkWw0)
+- Project report
+  - [Markdown](./project_report.md)
+  - [PDF](./project_report.pdf)
+- Presentation slides
+  - [Google Slides](https://docs.google.com/presentation/d/1e7b8B-wZhJfHMkfA4pPUMoJ2D7b2-wNFsDmznAxkWw0)
+  - [PowerPoint](./presentation_slides.pptx)
+  - [PDF](./presentation_slides.pdf)
+- [Presentation demo](https://drive.google.com/file/d/1GPpABRRELSHYZso9eidXF9zTxIekp8n0/view)
